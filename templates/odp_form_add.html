@@ -1,0 +1,80 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Tambah ODP (Bisa Banyak Sekaligus)</h2>
+
+    <form method="post">
+        <div id="row-container" class="space-y-6">
+
+            <div class="odp-row grid grid-cols-1 md:grid-cols-11 gap-4 p-4 border rounded-md items-end">
+                <div class="md:col-span-5">
+                    <label class="form-label">Nama ODP</label>
+                    <input type="text" name="nama_odp[]" placeholder="Contoh: ODP-KLJ-01" required class="w-full form-input">
+                </div>
+                <div class="md:col-span-5">
+                    <label class="form-label">Alamat ODP</label>
+                    <input type="text" name="alamat_odp[]" placeholder="Contoh: Jl. Klojen No. 1" class="w-full form-input">
+                </div>
+                <div class="md:col-span-1">
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="mt-6">
+            <button type="button" id="add-row-btn" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                [+] Tambah ODP Lain
+            </button>
+        </div>
+
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t mt-6">
+            <a href="{{ url_for('odp_list') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Simpan Semua ODP
+            </button>
+        </div>
+    </form>
+</div>
+
+<template id="row-template">
+    <div class="odp-row grid grid-cols-1 md:grid-cols-11 gap-4 p-4 border rounded-md items-end animate-fade-in">
+        <div class="md:col-span-5">
+            <label class="form-label">Nama ODP</label>
+            <input type="text" name="nama_odp[]" placeholder="Contoh: ODP-KLJ-02" required class="w-full form-input">
+        </div>
+        <div class="md:col-span-5">
+            <label class="form-label">Alamat ODP</label>
+            <input type="text" name="alamat_odp[]" placeholder="Contoh: Jl. Klojen No. 2" class="w-full form-input">
+        </div>
+        <div class="md:col-span-1 flex items-center justify-center">
+             <button type="button" class="remove-row-btn bg-red-500 hover:bg-red-600 text-white rounded-full p-1 h-8 w-8 flex items-center justify-center">&times;</button>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRowBtn = document.getElementById('add-row-btn');
+        const container = document.getElementById('row-container');
+        const template = document.getElementById('row-template');
+
+        // Fungsi untuk menambah baris baru
+        addRowBtn.addEventListener('click', () => {
+            const newRowFragment = template.content.cloneNode(true);
+            container.appendChild(newRowFragment);
+        });
+
+        // Fungsi untuk menghapus baris (menggunakan event delegation)
+        container.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('remove-row-btn')) {
+                event.target.closest('.odp-row').remove();
+            }
+        });
+    });
+    </script>
+{% endblock %}

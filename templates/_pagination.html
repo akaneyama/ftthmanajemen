@@ -1,0 +1,38 @@
+{% macro render_pagination(pagination, endpoint, args) %}
+<div class="flex flex-col md:flex-row justify-between items-center mt-6 text-sm">
+    
+    <div>
+        <p class="text-gray-600">
+            Menampilkan <span class="font-bold">{{ pagination.start_item }}</span> - <span class="font-bold">{{ pagination.end_item }}</span> dari <span class="font-bold">{{ pagination.total_items }}</span> data
+        </p>
+    </div>
+
+    {% if pagination.total_pages > 1 %}
+    <div class="flex items-center space-x-1 mt-4 md:mt-0">
+        {% if pagination.current_page > 1 %}
+            <a href="{{ url_for(endpoint, page=pagination.current_page - 1, **args) }}" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">‹</a>
+        {% else %}
+            <span class="px-3 py-2 bg-gray-100 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed">‹</span>
+        {% endif %}
+
+        {% for p in pagination.iter_pages %}
+            {% if p %}
+                {% if p == pagination.current_page %}
+                    <span class="px-3 py-2 bg-blue-500 text-white border border-blue-500 rounded-md">{{ p }}</span>
+                {% else %}
+                    <a href="{{ url_for(endpoint, page=p, **args) }}" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">{{ p }}</a>
+                {% endif %}
+            {% else %}
+                <span class="px-3 py-2">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagination.current_page < pagination.total_pages %}
+            <a href="{{ url_for(endpoint, page=pagination.current_page + 1, **args) }}" class="px-3 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">›</a>
+        {% else %}
+            <span class="px-3 py-2 bg-gray-100 border border-gray-300 text-gray-400 rounded-md cursor-not-allowed">›</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}

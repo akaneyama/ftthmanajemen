@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-4">Proses Isolir Sedang Berjalan...</h2>
+    <p class="text-gray-600 mb-6">Jangan tutup halaman ini. Proses berjalan di latar belakang dan status akan diperbarui secara otomatis.</p>
+
+    <div class="mb-4">
+        <div class="flex justify-between mb-1">
+            <span id="progress-text" class="text-base font-medium text-blue-700">Memulai...</span>
+            <span id="progress-percent" class="text-sm font-medium text-blue-700">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-4">
+            <div id="progress-bar" class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <h3 class="font-bold text-gray-700 mt-8 mb-2">Log Hasil:</h3>
+    <pre id="log-output" class="bg-gray-900 text-white p-4 rounded-md h-96 overflow-y-auto font-mono text-sm"></pre>
+
+    <div id="completion-message" class="hidden mt-6 text-center">
+        <p class="text-2xl font-bold text-green-600">PROSES SELESAI!</p>
+        <a href="{{ url_for('tool_isolir_batch') }}" class="mt-4 inline-block bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+            Kembali ke Halaman Upload
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const taskId = "{{ task_id }}";
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressPercent = document.getElementById('progress-percent');
+        const logOutput = document.getElementById('log-output');
+        const completionMessage = document.getElementById('completion-message');
+        
+        let lastResultIndex = 0;
+
+        // Fungsi untuk mengambil status dari server
+        async function checkStatus() {
+            try {
+                const response = await fetch(`/tools/isolir/status/${taskId}`);
+                const data = await response.json();
+
+                // Update Progress Bar
+                const total = data.total || 0;
+                const progress = data.progress || 0;
+                const percentage = total > 0 ? Math.round((progress / total) * 100) : 0;
+                
+                progressBar.style.width = percentage + '%';
+                progressText.textContent = `Memproses ${progress} dari ${total}...`;
+                progressPercent.textContent = percentage + '%';
+
+                // Update Log
+                if (data.results && data.results.length > lastResultIndex) {
+                    const newResults = data.results.slice(lastResultIndex);
+                    logOutput.innerHTML += newResults.join('\n') + '\n';
+                    logOutput.scrollTop = logOutput.scrollHeight; // Auto-scroll ke bawah
+                    lastResultIndex = data.results.length;
+                }
+
+                // Jika selesai, hentikan polling
+                if (data.status === 'completed') {
+                    clearInterval(intervalId);
+                    progressBar.classList.remove('bg-blue-600');
+                    progressBar.classList.add('bg-green-600');
+                    completionMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Gagal mengambil status:', error);
+                logOutput.innerHTML += 'Error: Gagal terhubung ke server untuk update status.\n';
+                clearInterval(intervalId);
+            }
+        }
+
+        // Mulai polling setiap 2 detik
+        const intervalId = setInterval(checkStatus, 2000);
+    });
+</script>
+{% endblock %}

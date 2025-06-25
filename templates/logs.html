@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+{% from '_pagination.html' import render_pagination %}
+
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Log Aktivitas</h2>
+    
+    {{ render_pagination(pagination, 'activity_logs', {}) }}
+
+    <div class="overflow-x-auto mt-4">
+        <table class="min-w-full bg-white text-sm">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="py-3 px-4 text-left">Waktu</th>
+                    <th class="py-3 px-4 text-left">Pengguna</th>
+                    <th class="py-3 px-4 text-left">Aksi</th>
+                    <th class="py-3 px-4 text-left">Detail</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-700">
+                {% for log in logs %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-4 whitespace-nowrap">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="py-3 px-4">{{ log.username }}</td>
+                    <td class="py-3 px-4 font-medium">{{ log.action }}</td>
+                    <td class="py-3 px-4">{{ log.details }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-center py-4">Belum ada aktivitas yang tercatat.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        {{ render_pagination(pagination, 'activity_logs', {}) }}
+    </div>
+</div>
+{% endblock %}

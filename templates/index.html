@@ -1,0 +1,278 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <p class="text-gray-500">Selamat datang kembali, {% if session.get('logged_in') %}{{ session.get('username') }}{% else %}Guest{% endif %}! Ini adalah ringkasan jaringan Anda.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Total Client -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+        <div class="bg-blue-100 text-blue-600 p-3 rounded-full mr-4">
+            <!-- Ikon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm text-gray-500">Total Client</p>
+            <p class="text-3xl font-bold text-gray-800">{{ stats.total_clients }}</p>
+        </div>
+    </div>
+
+    
+
+    <!-- Total ODP -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+        <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm text-gray-500">Total ODP</p>
+            <p class="text-3xl font-bold text-gray-800">{{ stats.total_odps }}</p>
+        </div>
+    </div>
+
+    <!-- Area Ter-cover -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+    <div class="bg-green-100 text-green-600 p-3 rounded-full mr-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
+    </div>
+    <div>
+                <p class="text-sm text-gray-500">Total OLT</p>
+                <p class="text-3xl font-bold text-gray-800">{{ stats.total_olts }}</p>
+            </div>
+</div>
+
+<!-- Total ODC (sekarang sebagai widget terpisah) -->
+<!-- Kolom berisi 2 widget bertumpuk dengan tinggi rata -->
+<div class="flex flex-col h-full space-y-6">
+    <!-- Area Ter-cover -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center flex-1">
+        <div class="bg-purple-100 text-purple-600 p-3 rounded-full mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm text-gray-500">Area Ter-cover</p>
+            <p class="text-3xl font-bold text-gray-800">{{ stats.total_fats }}</p>
+        </div>
+    </div>
+
+    <!-- Total ODC -->
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center flex-1">
+        <div class="bg-gray-100 text-gray-600 p-3 rounded-full mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M21.75 17.25v-.228a4.5 4.5 0 0 0-.12-1.03l-2.268-9.64a3.375 3.375 0 0 0-3.285-2.602H7.923a3.375 3.375 0 0 0-3.285 2.602l-2.268 9.64a4.5 4.5 0 0 0-.12 1.03v.228m19.5 0a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3m19.5 0a3 3 0 0 0-3-3H5.25a3 3 0 0 0-3 3m16.5 0h.008v.008h-.008v-.008Zm-3 0h.008v.008h-.008v-.008Z" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-sm text-gray-500">Total ODC</p>
+            <p class="text-3xl font-bold text-gray-800">{{ stats.total_odcs }}</p>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- Live Traffic ISP -->
+    <div class="bg-white p-6 rounded-lg shadow-md col-span-1 sm:col-span-2 lg:col-span-2">
+        <div class="flex items-center mb-4">
+            <div class="bg-red-100 text-red-600 p-3 rounded-full mr-4 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-700">Live Traffic ISP</h3>
+                <p class="text-xs text-gray-500">Update setiap 5 detik</p>
+            </div>
+        </div>
+        <div id="isp-traffic-rate-container" class="space-y-3">
+            <p class="text-gray-400 text-sm animate-pulse">Menghitung kecepatan awal...</p>
+        </div>
+    </div>
+</div>
+
+        
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 space-y-6">
+            
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="font-bold text-gray-700 mb-4">Grafik Rata-rata Traffic per Jam</h3>
+                
+                <form method="GET" action="{{ url_for('index') }}" class="mb-6 pb-4 border-b">
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div>
+                            <label for="date-filter" class="form-label text-sm">Tampilkan Untuk Tanggal:</label>
+                            <input type="date" id="date-filter" name="date" value="{{ selected_date }}" class="form-input">
+                        </div>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Filter</button>
+                    </div>
+                </form>
+
+                <div class="space-y-6">
+                    {% for name, data in chart_data.items() %}
+                    <div class="pt-4">
+                        <p class="font-semibold text-blue-600">{{ name }}</p>
+                        <div class="h-64 mt-2">
+                            <canvas id="chart-{{ name|replace(' ', '-')|replace('/', '-') }}"></canvas>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="h-64 flex items-center justify-center bg-gray-100 rounded-md">
+                        <p class="text-gray-500">Tidak ada data traffic historis untuk tanggal yang dipilih.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                 <h3 class="font-bold text-gray-700 mb-4">Client Baru Ditambahkan</h3>
+                <ul class="divide-y divide-gray-200">
+                    {% for client in recent_clients %}
+                    <li class="py-3 flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-800">{{ client.nama_client }}</p>
+                            <p class="text-sm text-gray-500">{{ client.alamat_client }}</p>
+                        </div>
+                        <span class="text-xs bg-blue-100 text-blue-800 font-medium px-2 py-1 rounded-full">Baru</span>
+                    </li>
+                    {% else %}
+                    <li class="py-3 text-center text-gray-500">Belum ada aktivitas.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="font-bold text-gray-700 mb-4">ODP Terpadat (Top 5)</h3>
+                <div class="space-y-3">
+                    {% for odp in odp_utilitas %}
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md">
+                        <span class="text-sm font-medium text-gray-800">{{ odp.nama_odp }}</span>
+                        <span class="text-sm font-bold text-blue-600">{{ odp.client_count }} Client</span>
+                    </div>
+                    {% else %}
+                    <p class="text-sm text-center text-gray-500">Belum ada data utilitas ODP.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="font-bold text-gray-700 mb-4">Akses Cepat</h3>
+                {% if session['logged_in'] %}
+                <div class="space-y-3">
+                    <a href="{{ url_for('client_add') }}" class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition">Tambah Client</a>
+                    <a href="{{ url_for('rincian_client_add') }}" class="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition">Hubungkan Client</a>
+                    <a href="{{ url_for('rincian_odp_add') }}" class="block w-full text-center bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded transition">Tambah Jalur ODP</a>
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">Silakan <a href="{{ url_for('login') }}" class="text-blue-600 hover:underline">login</a> untuk menggunakan akses cepat.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ===================================
+    // === LOGIKA UNTUK GRAFIK HISTORI ===
+    // ===================================
+    const chartData = {{ chart_data|tojson }};
+    for (const interfaceName in chartData) {
+        const canvasId = 'chart-' + interfaceName.replace(/[\s/]/g, '-');
+        const ctx = document.getElementById(canvasId);
+        if (ctx) {
+            const data = chartData[interfaceName];
+            new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        { label: 'Avg Download (Mbps)', data: data.downloads, backgroundColor: 'rgba(22, 163, 74, 0.6)'},
+                        { label: 'Avg Upload (Mbps)', data: data.uploads, backgroundColor: 'rgba(37, 99, 235, 0.6)'}
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true }, x: {} } }
+            });
+        }
+    }
+
+    // =====================================
+    // === LOGIKA UNTUK LIVE TRAFFIC RATE ===
+    // =====================================
+    const ispTrafficContainer = document.getElementById('isp-traffic-rate-container');
+    if (ispTrafficContainer) {
+        let trafficState = {}; // Objek untuk menyimpan state terakhir
+
+        async function updateIspTrafficRate() {
+            const interfaces = {{ isp_interfaces|tojson }};
+            let containerHtml = '';
+            for (const iface of interfaces) {
+                const interfaceName = iface.interface_name;
+                try {
+                    const response = await fetch(`/api/traffic/interface/${interfaceName}`);
+                    const data = await response.json();
+                    if (response.ok) {
+                        const now = Date.now();
+                        const currentRx = data.rx_byte;
+                        const currentTx = data.tx_byte;
+                        const lastState = trafficState[interfaceName] || { lastRx: currentRx, lastTx: currentTx, lastTime: now - 5000 };
+                        const timeDiffSeconds = (now - lastState.lastTime) / 1000;
+                        let rxRateMbps = 0, txRateMbps = 0;
+                        if (timeDiffSeconds > 0) {
+                            rxRateMbps = Math.max(0, ((currentRx - lastState.lastRx) * 8 / timeDiffSeconds) / 1000000);
+                            txRateMbps = Math.max(0, ((currentTx - lastState.lastTx) * 8 / timeDiffSeconds) / 1000000);
+                        }
+                        trafficState[interfaceName] = { lastRx: currentRx, lastTx: currentTx, lastTime: now };
+                        containerHtml += `
+    <div class="border-t pt-3 first:pt-0 first:border-t-0">
+        <p class="font-bold text-gray-800 text-sm mb-2">${iface.router_alias} - ${interfaceName}</p>
+        <div class="grid grid-cols-2 gap-2">
+            <div class="bg-green-50 p-2 rounded-md text-center">
+                <p class="text-xs text-green-800 font-semibold">↓ DOWNLOAD</p>
+                <p class="font-bold text-green-600 font-mono text-lg">${rxRateMbps.toFixed(2)} <span class="text-sm font-medium">Mbps</span></p>
+            </div>
+            <div class="bg-blue-50 p-2 rounded-md text-center">
+                <p class="text-xs text-blue-800 font-semibold">↑ UPLOAD</p>
+                <p class="font-bold text-blue-600 font-mono text-lg">${txRateMbps.toFixed(2)} <span class="text-sm font-medium">Mbps</span></p>
+            </div>
+        </div>
+    </div>
+`;
+                    }
+                } catch (error) { console.error(`Error traffic ${interfaceName}:`, error); }
+            }
+            ispTrafficContainer.innerHTML = containerHtml || '<p class="text-sm text-gray-500">Gagal memuat data live.</p>';
+        }
+        setTimeout(updateIspTrafficRate, 500);
+        setInterval(updateIspTrafficRate, 2000);
+    }
+});
+</script>
+{% endblock %}

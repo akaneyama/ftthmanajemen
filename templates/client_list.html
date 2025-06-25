@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% from '_pagination.html' import render_pagination %}
+{% block content %}
+<div class="overflow-x-auto bg-white p-6 rounded-lg shadow-md">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-700 mb-4 md:mb-0 whitespace-nowrap">Daftar Client</h2>
+         {% if session['logged_in'] %}
+        <a href="{{ url_for('client_add') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out whitespace-nowrap">
+            Tambah Client Baru
+        </a>
+        {% endif %}
+    </div>
+    <div class="mb-4">
+        <form method="GET" action="{{ url_for('client_list') }}">
+            <div class="flex">
+                <input type="text" name="search" value="{{ search or '' }}" placeholder="Cari client..." class="w-full h-10 px-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <button type="submit" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md">Cari</button>
+            </div>
+        </form>
+    </div>
+    <table class="min-w-full bg-white">
+        <thead class="bg-gray-800 text-white">
+            <tr>
+                <th class="py-3 px-4 text-left">Nama Client</th>
+                <th class="py-3 px-4 text-left">IP Address</th>
+                 {% if session['logged_in'] %}
+                <th class="py-3 px-4 text-left">Aksi</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody class="text-gray-700">
+            {% for client in clients %}
+            <tr class="border-b border-gray-200 hover:bg-gray-100">
+                <td class="py-3 px-4">{{ client.nama_client }}</td>
+                <td class="py-3 px-4">{{ client.ip_address }}</td>
+                 {% if session['logged_in'] %}
+                <td class="py-3 px-4">
+                    <div class="flex items-center space-x-2 whitespace-nowrap">
+                        <a href="{{ url_for('client_edit', id=client.id_client) }}" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded text-sm" title="Edit">Edit</a>
+                        <form action="{{ url_for('client_delete', id=client.id_client) }}" method="post" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus client ini?');">
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm" title="Hapus">Hapus</button>
+                        </form>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center py-4">Belum ada data client.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="mt-4">
+        {{ render_pagination(pagination, 'client_list', {'search': search}) }}
+    </div>
+</div>
+{% endblock %}

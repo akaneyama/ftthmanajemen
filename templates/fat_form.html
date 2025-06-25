@@ -1,0 +1,20 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">{{ 'Edit FAT / Area' if action == 'edit' else 'Tambah FAT / Area Baru' }}</h2>
+    <form method="post" class="space-y-6">
+        <div>
+            <label for="nama_fat" class="block text-sm font-medium text-gray-700">Nama FAT / Area</label>
+            <input type="text" id="nama_fat" name="nama_fat" value="{{ fat.nama_fat if fat else '' }}" required
+                   class="mt-1 block w-full h-10 px-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="flex items-center justify-end space-x-4 pt-4">
+            <a href="{{ url_for('fat_list') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                {{ 'Update' if action == 'edit' else 'Simpan' }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

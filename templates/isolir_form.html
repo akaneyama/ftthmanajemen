@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-4">Tool Isolir Client</h2>
+    <div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-md mb-6 text-sm">
+        <p>Alat ini memungkinkan Anda mengisolir satu atau banyak client secara aman. Proses pengecekan ke router akan berjalan di latar belakang untuk mencegah timeout.</p>
+    </div>
+    <form method="post" action="{{ url_for('isolir_tool') }}">
+        <div id="row-container" class="space-y-4">
+            <div class="ip-row flex items-center gap-4">
+                <div class="flex-grow">
+                    <label for="ip_address_1" class="form-label">Daftar IP Address</label>
+                    <input type="text" id="ip_address_1" name="ip_address[]" placeholder="Contoh: 192.168.1.10 atau static@..." required class="w-full form-input font-mono">
+                </div>
+                <div class="w-10 flex-shrink-0"></div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <button type="button" id="add-row-btn" class="text-blue-600 hover:text-blue-800 font-medium text-sm">[+] Tambah IP Lain</button>
+        </div>
+        <div class="flex items-center justify-end pt-6 mt-6 border-t">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded transition">Mulai Pengecekan IP</button>
+        </div>
+    </form>
+</div>
+<template id="row-template">
+    <div class="ip-row flex items-center gap-4 animate-fade-in">
+        <div class="flex-grow">
+            <input type="text" name="ip_address[]" required class="w-full form-input font-mono" placeholder="Masukkan IP Address...">
+        </div>
+        <div class="w-10 flex-shrink-0">
+             <button type="button" class="remove-row-btn bg-red-500 hover:bg-red-600 text-white rounded-full p-1 h-8 w-8 flex items-center justify-center">&times;</button>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRowBtn = document.getElementById('add-row-btn');
+        const container = document.getElementById('row-container');
+        const template = document.getElementById('row-template');
+        addRowBtn.addEventListener('click', () => {
+            const newRowFragment = template.content.cloneNode(true);
+            const newInput = newRowFragment.querySelector('input');
+            container.appendChild(newRowFragment);
+            newInput.focus();
+        });
+        container.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('remove-row-btn')) {
+                event.target.closest('.ip-row').remove();
+            }
+        });
+    });
+    </script>
+{% endblock %}

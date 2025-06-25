@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+{% from '_pagination.html' import render_pagination %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-700 mb-4 md:mb-0">Daftar FAT / Area</h2>
+         {% if session['logged_in'] %}
+        <a href="{{ url_for('fat_add') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+            Tambah Area Baru
+        </a>
+        {%endif%}
+    </div>
+    <div class="mb-4">
+        <form method="GET" action="{{ url_for('fat_list') }}">
+            <div class="flex">
+                <input type="text" name="search" value="{{ search or '' }}" placeholder="Cari nama area..." class="w-full h-10 px-3 border border-gray-300 rounded-l-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <button type="submit" class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-r-md">Cari</button>
+            </div>
+        </form>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="py-3 px-4 text-left">ID</th>
+                    <th class="py-3 px-4 text-left">Nama FAT / Area</th>
+                     {% if session['logged_in'] %}
+                    <th class="py-3 px-4 text-left">Aksi</th>
+                    {%endif%}
+                </tr>
+            </thead>
+            <tbody>
+                {% for fat in fats %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-4">{{ fat.id_fat }}</td>
+                    <td class="py-3 px-4">{{ fat.nama_fat }}</td>
+                     {% if session['logged_in'] %}
+                    <td class="py-3 px-4 flex items-center space-x-2">
+                        <a href="{{ url_for('fat_edit', id=fat.id_fat) }}" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded text-sm">Edit</a>
+                        <form action="{{ url_for('fat_delete', id=fat.id_fat) }}" method="post" onsubmit="return confirm('Yakin hapus area ini?');">
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm">Hapus</button>
+                        </form>
+                    </td>
+                    {%endif%}
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="text-center py-4">Belum ada data FAT / Area.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-4">
+        {{ render_pagination(pagination, 'fat_list', {'search': search}) }}
+    </div>
+</div>
+{% endblock %}

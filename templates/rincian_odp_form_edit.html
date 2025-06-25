@@ -1,0 +1,97 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-2xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Edit Rincian ODP</h2>
+    <form method="post" class="space-y-6">
+        <div>
+            <label for="id_fat" class="block text-sm font-medium text-gray-700">Pilih Area (FAT)</label>
+            <select id="id_fat" name="id_fat" class="select2-class w-full" required>
+                {% for fat in fats %}<option value="{{ fat.id_fat }}" {% if rincian and rincian.id_fat == fat.id_fat %}selected{% endif %}>{{ fat.nama_fat }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="id_olt" class="block text-sm font-medium text-gray-700">Pilih OLT</label>
+            <select id="id_olt" name="id_olt" class="select2-class w-full" required>
+                {% for olt in olts %}
+                <option value="{{ olt.id_olt }}" data-ports="{{ olt.pon_olt }}" {% if rincian and rincian.id_olt == olt.id_olt %}selected{% endif %}>{{ olt.nama_olt }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="pon_port" class="block text-sm font-medium text-gray-700">Nomor Port PON di OLT</label>
+            <select id="pon_port" name="pon_port" required class="w-full form-input">
+                <option value="">-- Pilih OLT Dahulu --</option>
+            </select>
+        </div>
+        <div>
+            <label for="id_odc" class="block text-sm font-medium text-gray-700">Pilih ODC</label>
+            <select id="id_odc" name="id_odc" class="select2-class w-full" required>
+                {% for odc in odcs %}<option value="{{ odc.id_odc }}" {% if rincian and rincian.id_odc == odc.id_odc %}selected{% endif %}>{{ odc.nama_odc }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="id_odp" class="block text-sm font-medium text-gray-700">Pilih ODP</label>
+            <select id="id_odp" name="id_odp" class="select2-class w-full" required>
+                {% for odp in odps %}<option value="{{ odp.id_odp }}" {% if rincian and rincian.id_odp == odp.id_odp %}selected{% endif %}>{{ odp.nama_odp }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="warna_kabel" class="block text-sm font-medium text-gray-700">Warna Kabel</label>
+            <input type="text" id="warna_kabel" name="warna_kabel" value="{{ rincian.warna_kabel if rincian else '' }}" required class="w-full form-input">
+        </div>
+        <div class="flex items-center justify-end space-x-4 pt-4">
+            <a href="{{ url_for('rincian_odp_list') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">Update Jalur</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    $(document).ready(function() {
+        // Inisialisasi semua Select2
+        $('.select2-class').select2();
+
+        const oltSelect = $('#id_olt');
+        const ponPortSelect = $('#pon_port');
+        
+        // Simpan nilai port pon awal jika sedang dalam mode edit
+        const initialPonPort = "{{ rincian.pon_port if rincian else '' }}";
+
+        function populatePonPorts() {
+            // Ambil opsi yang terpilih di dropdown OLT
+            const selectedOlt = oltSelect.find('option:selected');
+            // Ambil jumlah port dari atribut data-ports
+            const portCount = parseInt(selectedOlt.data('ports'), 10);
+            
+            // Kosongkan pilihan port pon yang lama
+            ponPortSelect.empty();
+
+            if (portCount && !isNaN(portCount)) {
+                ponPortSelect.append('<option value="">-- Pilih Port --</option>');
+                // Buat pilihan baru dari 1 sampai jumlah port
+                for (let i = 1; i <= portCount; i++) {
+                    ponPortSelect.append(`<option value="${i}">${i}</option>`);
+                }
+                // Jika ada nilai awal, pilih nilai tersebut
+                if(initialPonPort) {
+                    ponPortSelect.val(initialPonPort);
+                }
+            } else {
+                ponPortSelect.append('<option value="">-- OLT Tidak Memiliki Info Port --</option>');
+            }
+        }
+
+        // Jalankan fungsi saat halaman pertama kali dimuat untuk mengisi data edit
+        if (oltSelect.val()) {
+            populatePonPorts();
+        }
+
+        // Jalankan fungsi setiap kali pilihan OLT berubah
+        oltSelect.on('change', populatePonPorts);
+    });
+</script>
+{% endblock %}

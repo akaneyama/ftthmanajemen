@@ -1,0 +1,126 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Tambah Client (Bisa Banyak Sekaligus)</h2>
+
+    <form method="post">
+        <div id="client-rows-container" class="space-y-6">
+            
+            <div class="client-row grid grid-cols-1 md:grid-cols-10 gap-4 p-4 border rounded-md">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Nama Client</label>
+                    <input type="text" name="nama_client[]" required class="mt-1 w-full form-input">
+                </div>
+                <div class="md:col-span-3">
+                    <label class="block text-sm font-medium text-gray-700">Alamat</label>
+                    <input type="text" name="alamat_client[]" class="mt-1 w-full form-input">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+                    <input type="text" name="nomor_telp[]" class="mt-1 w-full form-input">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">IP Address</label>
+                    <input type="text" name="ip_address[]"  class="mt-1 w-full form-input">
+                </div>
+                <div class="flex items-end">
+                    </div>
+            </div>
+
+        </div>
+
+        <div class="mt-6">
+            <button type="button" id="add-row-btn" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                [+] Tambah Client Lain
+            </button>
+        </div>
+
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t mt-6">
+            <a href="{{ url_for('client_list') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Simpan Semua Client
+            </button>
+        </div>
+    </form>
+</div>
+
+<template id="client-row-template">
+    <div class="client-row grid grid-cols-1 md:grid-cols-10 gap-4 p-4 border rounded-md animate-fade-in">
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Nama Client</label>
+            <input type="text" name="nama_client[]" required class="mt-1 w-full form-input">
+        </div>
+        <div class="md:col-span-3">
+            <label class="block text-sm font-medium text-gray-700">Alamat</label>
+            <input type="text" name="alamat_client[]" class="mt-1 w-full form-input">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+            <input type="text" name="nomor_telp[]" class="mt-1 w-full form-input">
+        </div>
+        <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700">IP Address</label>
+            <input type="text" name="ip_address[]" class="mt-1 w-full form-input">
+        </div>
+        <div class="flex items-end">
+            <button type="button" class="remove-row-btn bg-red-500 hover:bg-red-600 text-white rounded-full p-1 h-8 w-8 flex items-center justify-center">
+                &times;
+            </button>
+        </div>
+    </div>
+</template>
+
+<style>
+    .form-input {
+        height: 2.5rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        border-width: 1px;
+        border-color: #d1d5db;
+        border-radius: 0.375rem;
+    }
+    .form-input:focus {
+        outline: none;
+        --tw-ring-color: #3b82f6;
+        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+        border-color: #3b82f6;
+    }
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+</style>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRowBtn = document.getElementById('add-row-btn');
+        const container = document.getElementById('client-rows-container');
+        const template = document.getElementById('client-row-template');
+
+        // Fungsi untuk menambah baris baru
+        addRowBtn.addEventListener('click', () => {
+            // 'clone' template dan ambil kontennya
+            const newRow = template.content.cloneNode(true);
+            container.appendChild(newRow);
+        });
+
+        // Fungsi untuk menghapus baris (menggunakan event delegation)
+        container.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('remove-row-btn')) {
+                // Ambil parent dari tombol (yaitu div 'client-row') dan hapus
+                event.target.closest('.client-row').remove();
+            }
+        });
+    });
+    </script>
+{% endblock %}

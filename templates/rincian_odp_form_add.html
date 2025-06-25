@@ -1,0 +1,85 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6">Tambah Rincian Jalur ODP (Batch)</h2>
+
+    <form method="post">
+        <div id="row-container" class="space-y-6">
+            <div class="rincian-row grid grid-cols-1 md:grid-cols-11 gap-4 p-4 border rounded-md items-end">
+                <div class="md:col-span-2"><label class="form-label">Area (FAT)</label><select name="id_fat[]" class="select2-class w-full" required><option value="" selected>-- Pilih Area --</option>{% for fat in fats %}<option value="{{ fat.id_fat }}">{{ fat.nama_fat }}</option>{% endfor %}</select></div>
+                <div class="md:col-span-2"><label class="form-label">OLT</label><select name="id_olt[]" class="select2-class w-full" required><option value="" selected>-- Pilih OLT --</option>{% for olt in olts %}<option value="{{ olt.id_olt }}">{{ olt.nama_olt }} | {{olt.pon_olt}}</option>{% endfor %}</select></div>
+                <div class="md:col-span-2"><label class="form-label">ODC</label><select name="id_odc[]" class="select2-class w-full" required><option value="" selected>-- Pilih ODC --</option>{% for odc in odcs %}<option value="{{ odc.id_odc }}">{{ odc.nama_odc }} | {{odc.port_odc}}</option>{% endfor %}</select></div>
+                <div class="md:col-span-2"><label class="form-label">ODP</label><select name="id_odp[]" class="select2-class w-full" required><option value="" selected>-- Pilih ODP --</option>{% for odp in odps %}<option value="{{ odp.id_odp }}">{{ odp.nama_odp }}</option>{% endfor %}</select></div>
+                <div class="md:col-span-2"><label class="form-label">Kabel</label><input type="text" name="warna_kabel[]" placeholder="Biru" required class="w-full form-input"></div>
+                <div class="md:col-span-1"></div>
+            </div>
+        </div>
+        
+        <div class="mt-6">
+            <button type="button" id="add-row-btn" class="text-blue-600 hover:text-blue-800 font-medium text-sm">[+] Tambah Jalur Lain</button>
+        </div>
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t mt-6">
+            <a href="{{ url_for('rincian_odp_list') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Batal</a>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Simpan Semua Jalur</button>
+        </div>
+    </form>
+</div>
+
+<template id="row-template">
+    <div class="rincian-row grid grid-cols-1 md:grid-cols-11 gap-4 p-4 border rounded-md items-end animate-fade-in">
+        <div class="md:col-span-2"><label class="form-label">Area (FAT)</label><select name="id_fat[]" class="select2-class w-full" required><option value="" selected>-- Pilih Area --</option>{% for fat in fats %}<option value="{{ fat.id_fat }}">{{ fat.nama_fat }}</option>{% endfor %}</select></div>
+        <div class="md:col-span-2"><label class="form-label">OLT</label><select name="id_olt[]" class="select2-class w-full" required><option value="" selected>-- Pilih OLT --</option>{% for olt in olts %}<option value="{{ olt.id_olt }}">{{ olt.nama_olt }} | {{olt.pon_olt}}</option>{% endfor %}</select></div>
+        <div class="md:col-span-2"><label class="form-label">ODC</label><select name="id_odc[]" class="select2-class w-full" required><option value="" selected>-- Pilih ODC --</option>{% for odc in odcs %}<option value="{{ odc.id_odc }}">{{ odc.nama_odc }} | {{odc.port_odc}}</option>{% endfor %}</select></div>
+        <div class="md:col-span-2"><label class="form-label">ODP</label><select name="id_odp[]" class="select2-class w-full" required><option value="" selected>-- Pilih ODP --</option>{% for odp in odps %}<option value="{{ odp.id_odp }}">{{ odp.nama_odp }}</option>{% endfor %}</select></div>
+        <div class="md:col-span-2"><label class="form-label">Kabel</label><input type="text" name="warna_kabel[]" placeholder="Biru" required class="w-full form-input"></div>
+        <div class="md:col-span-1 flex items-center justify-center"><button type="button" class="remove-row-btn bg-red-500 hover:bg-red-600 text-white rounded-full p-1 h-8 w-8 flex items-center justify-center">&times;</button></div>
+    </div>
+</template>
+{% endblock %}
+
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRowBtn = document.getElementById('add-row-btn');
+        const container = document.getElementById('row-container');
+        const template = document.getElementById('row-template');
+
+        // Fungsi untuk meng-inisialisasi Select2 pada sebuah elemen baris
+        function initializeRow(rowElement) {
+            // Kita gunakan jQuery di sini karena Select2 adalah plugin jQuery
+            $(rowElement).find('.select2-class').select2({
+                width: '100%' // Pastikan Select2 mengisi lebar penuh
+            });
+        }
+
+        // Inisialisasi baris pertama yang sudah ada saat halaman dimuat
+        initializeRow(container.querySelector('.rincian-row'));
+
+        // Event listener untuk tombol 'Tambah Baris'
+        addRowBtn.addEventListener('click', () => {
+            // 'clone' template dan ambil kontennya
+            const newRowFragment = template.content.cloneNode(true);
+            const newRow = newRowFragment.querySelector('.rincian-row');
+            
+            // Tambahkan baris baru ke kontainer
+            container.appendChild(newRowFragment);
+            
+            // Inisialisasi Select2 HANYA pada dropdown di baris yang baru ditambahkan
+            initializeRow(newRow);
+        });
+
+        // Event listener untuk tombol 'Hapus Baris' (menggunakan event delegation)
+        container.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('remove-row-btn')) {
+                const row = event.target.closest('.rincian-row');
+                // Hancurkan instance Select2 dari baris yang akan dihapus untuk mencegah memory leak
+                $(row).find('.select2-class').select2('destroy');
+                row.remove();
+            }
+        });
+    });
+</script>
+{% endblock %}

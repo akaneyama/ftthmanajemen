@@ -1,0 +1,143 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% from '_pagination.html' import render_pagination %}
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-700 mb-4 md:mb-0">Daftar Koneksi Client</h2>
+     {% if session['logged_in'] %}
+    <a href="{{ url_for('rincian_client_add') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out whitespace-nowrap">
+        Hubungkan Client Baru
+    </a>
+   
+    {%endif%}
+</div>
+<div class="flex flex-col md:flex-row right items-start md:items-center mb-6">
+   
+     {% if session['logged_in'] %}
+    
+    <a href="{{ url_for('export_clients', **request.args) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Export ke CSV
+    </a>
+    {%endif%}
+</div>
+
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <form method="GET" action="{{ url_for('rincian_client_list') }}" class="space-y-4">
+        <div>
+            <label for="search" class="block text-sm font-medium text-gray-700">Cari Client (Nama / No. Telp / IP)</label>
+            <input type="text" name="search" id="search" value="{{ filters.search or '' }}" placeholder="Ketik di sini..." class="mt-1 block w-full h-10 px-3 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label for="fat" class="block text-sm font-medium text-gray-700">Area (FAT)</label>
+                <select name="fat" id="fat" class="select2-class w-full">
+                    <option value="">Semua Area</option>
+                    {% for fat in master_data.fats %}
+                    <option value="{{ fat.id_fat }}" {% if filters.fat == fat.id_fat|string %}selected{% endif %}>{{ fat.nama_fat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="olt" class="block text-sm font-medium text-gray-700">OLT</label>
+                <select name="olt" id="olt" class="select2-class w-full">
+                    <option value="">Semua OLT</option>
+                    {% for olt in master_data.olts %}
+                    <option value="{{ olt.id_olt }}" {% if filters.olt == olt.id_olt|string %}selected{% endif %}>{{ olt.nama_olt }} | {{olt.pon_olt}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="odc" class="block text-sm font-medium text-gray-700">ODC</label>
+                <select name="odc" id="odc" class="select2-class w-full">
+                    <option value="">Semua ODC</option>
+                    {% for odc in master_data.odcs %}
+                    <option value="{{ odc.id_odc }}" {% if filters.odc == odc.id_odc|string %}selected{% endif %}>{{ odc.nama_odc }} | {{odc.port_odc}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="odp" class="block text-sm font-medium text-gray-700">ODP</label>
+                <select name="odp" id="odp" class="select2-class w-full">
+                    <option value="">Semua ODP</option>
+                    {% for odp in master_data.odps %}
+                    <option value="{{ odp.id_odp }}" {% if filters.odp == odp.id_odp|string %}selected{% endif %}>{{ odp.nama_odp }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Filter / Cari
+            </button>
+            <a href="{{ url_for('rincian_client_list') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                Reset
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="space-y-4">
+    {% for r in rincian_list %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="p-4 flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div class="flex-grow mb-4 md:mb-0">
+                <p class="font-bold text-lg text-gray-800">{{ r.nama_client }}</p>
+                <p class="text-sm text-gray-600">{{ r.alamat_client }} | <span class="font-medium">{{ r.nomor_telp }}</span></p>
+                <p class="text-sm text-gray-500 mt-1">
+                     <span class="font-semibold">ODP:</span> {{ r.nama_odp }} <br>
+                    <span class="font-semibold">Area:</span> {{ r.nama_fat }}
+                </p>
+            </div>
+             {% if session['logged_in'] %}
+            <div class="flex items-center space-x-2 flex-shrink-0">
+                <a href="{{ url_for('rincian_client_edit', id=r.id_rclient) }}" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded text-sm">Edit</a>
+                <form action="{{ url_for('rincian_client_delete', id=r.id_rclient) }}" method="post" onsubmit="return confirm('Yakin hapus koneksi client ini?');">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm">Hapus</button>
+                </form>
+            </div>
+            {%endif%}
+        </div>
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-2 pr-4 font-medium text-gray-600 w-1/3">OLT</td>
+                            <td class="py-2 text-gray-800">{{ r.nama_olt }} | {{ r.pon_olt }}</td>
+                        </tr>
+                    
+                        <tr class="border-b border-gray-200">
+                            <td class="py-2 pr-4 font-medium text-gray-600">ODC</td>
+                            <td class="py-2 text-gray-800">{{ r.nama_odc }} | {{r.port_odc}}</td>
+                        </tr>
+                    
+                        <tr>
+                            <td class="py-2 pr-4 font-medium text-gray-600">Warna Kabel</td>
+                            <td class="py-2 text-gray-800">{{ r.warna_kabel }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white text-center p-8 rounded-lg shadow-md">
+        <p>Data tidak ditemukan. Coba ubah filter atau kata kunci pencarian Anda.</p>
+    </div>
+    {% endfor %}
+
+    <div class="mt-4">
+        {{ render_pagination(pagination, 'client_list', {}) }}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }} 
+    <script>
+    // Inisialisasi Select2 pada dropdown filter
+    $(document).ready(function() {
+        $('#fat, #olt, #odc, #odp').select2();
+    });
+    </script>
+{% endblock %}

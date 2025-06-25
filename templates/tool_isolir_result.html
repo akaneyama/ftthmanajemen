@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+    <h2 class="text-2xl font-bold text-gray-700 mb-4">Hasil Proses Isolir</h2>
+    <p class="text-gray-600 mb-6">Proses selesai untuk {{ total }} IP. Berikut adalah laporannya:</p>
+
+    <div class="bg-gray-100 p-4 rounded-md max-h-96 overflow-y-auto font-mono text-sm space-y-1">
+        {% for result in results %}
+            {% if result.startswith('[OK]') %}
+                <p class="text-green-600">{{ result }}</p>
+            {% elif result.startswith('[GAGAL]') %}
+                <p class="text-red-600 font-bold">{{ result }}</p>
+            {% elif result.startswith('[INFO]') %}
+                <p class="text-blue-600">{{ result }}</p>
+            {% else %}
+                <p class="text-gray-500">{{ result }}</p>
+            {% endif %}
+        {% else %}
+            <p>Tidak ada hasil untuk ditampilkan.</p>
+        {% endfor %}
+    </div>
+
+    <div class="mt-6 text-center">
+        <a href="{{ url_for('tool_isolir_batch') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+            Kembali ke Halaman Upload
+        </a>
+    </div>
+</div>
+{% endblock %}
