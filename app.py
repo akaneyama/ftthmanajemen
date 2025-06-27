@@ -619,7 +619,7 @@ def client_add():
     return render_template('client_form.html', action='add')
 
 @app.route('/clients/edit/<int:id>', methods=['GET', 'POST'])
-@login_required 
+@login_required
 def client_edit(id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -627,35 +627,53 @@ def client_edit(id):
     if request.method == 'POST':
         nama = request.form['nama_client']
         alamat = request.form['alamat_client']
-        telp = request.form['nomor_telp']
-        ip = request.form['ip_address']
+        telp = request.form['nomor_telp'].strip()
+        ip = request.form['ip_address'].strip()
         
-        # Validasi duplikat
+        # Validasi duplikat IP
         cursor.execute("SELECT id_client FROM client WHERE ip_address = %s AND id_client != %s", (ip, id))
+        # PENTING: Ambil hasilnya dengan fetchone() untuk membersihkan cursor
         if cursor.fetchone():
             flash(f"Error: IP Address '{ip}' sudah digunakan oleh client lain.", 'danger')
+            cursor.close()
+            conn.close()
             return redirect(url_for('client_edit', id=id))
 
-        cursor.execute("SELECT id_client FROM client WHERE nomor_telp = %s AND id_client != %s", (telp, id))
-        if telp and cursor.fetchone():
-            flash(f"Error: Nomor Telepon '{telp}' sudah digunakan oleh client lain.", 'danger')
-            return redirect(url_for('client_edit', id=id))
+        # Validasi duplikat Nomor Telepon (hanya jika diisi)
+        if telp:
+            cursor.execute("SELECT id_client FROM client WHERE nomor_telp = %s AND id_client != %s", (telp, id))
+            # PENTING: Ambil hasilnya lagi di sini, meskipun untuk pengecekan
+            if cursor.fetchone():
+                flash(f"Error: Nomor Telepon '{telp}' sudah digunakan oleh client lain.", 'danger')
+                cursor.close()
+                conn.close()
+                return redirect(url_for('client_edit', id=id))
 
-        # Update data jika tidak ada duplikat
-        update_cursor = conn.cursor()
-        sql = "UPDATE client SET nama_client=%s, alamat_client=%s, nomor_telp=%s, ip_address=%s WHERE id_client=%s"
-        update_cursor.execute(sql, (nama, alamat, telp, ip, id))
+        # Jika semua validasi lolos, baru lakukan UPDATE
+        update_sql = "UPDATE client SET nama_client=%s, alamat_client=%s, nomor_telp=%s, ip_address=%s WHERE id_client=%s"
+        # Karena cursor sebelumnya sudah bersih, kita bisa memakainya lagi
+        cursor.execute(update_sql, (nama, alamat, telp, ip, id))
         conn.commit()
-        update_cursor.close()
         
+        add_log("Edit Client", f"Data client '{nama}' (ID: {id}) telah diperbarui.")
         flash('Data client berhasil diperbarui!', 'success')
+        
+        cursor.close()
+        conn.close()
         return redirect(url_for('client_list'))
 
+    # Bagian GET request tidak berubah
     cursor.execute("SELECT * FROM client WHERE id_client = %s", (id,))
     client = cursor.fetchone()
     cursor.close()
     conn.close()
+    
+    if not client:
+        flash("Client tidak ditemukan.", "danger")
+        return redirect(url_for('client_list'))
+        
     return render_template('client_form_edit.html', action='edit', client=client)
+
 
 @app.route('/clients/delete/<int:id>', methods=['POST'])
 @login_required 
