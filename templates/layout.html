@@ -51,7 +51,7 @@
                     {% if session.get('role') in ['maintenance', 'superadmin'] %}
                     <a class="py-2 px-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded" href="{{ url_for('isolir_tool') }}">Isolir Client</a>
                     {% endif %}
-                    <a class="py-2 px-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded" href="{{ url_for('monitoringsimple') }}">Monitoring Client</a>
+                    <a class="py-2 px-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded" href="{{ url_for('monitoringsimple') }}">Monitoring Server</a>
 
                     {% if session.get('role') == 'superadmin' %}
                     <div class="relative">

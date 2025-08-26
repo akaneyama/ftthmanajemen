@@ -80,7 +80,7 @@ def record_hourly_traffic_summary():
             continue
             
         # Proses sampling
-        sampling_duration = 60 # detik
+        sampling_duration = 20 # detik
         sampling_interval = 5 # detik
         num_samples = int(sampling_duration / sampling_interval)
 

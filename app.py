@@ -16,6 +16,8 @@ import uuid
 import copy
 from datetime import datetime
 import time
+from collections import defaultdict
+from olt.ambildataolt import reloadsemuadataolt
 
 app = Flask(__name__)
 app.secret_key = 'kunci_rahasia_untuk_flash_messages' # Diperlukan untuk flash message
@@ -165,9 +167,53 @@ def get_router_url_by_ip(ipfix):
 def maintenance():
     return render_template('error.html')
 
+
+
+
+
+
 @app.route('/monitoringsimple')
 def monitoringsimple():
-    return render_template('monitoringsimple.html')
+    """
+    Menampilkan halaman monitoring OLT dengan data dari database
+    yang disajikan dalam bentuk kartu.
+    """
+    conn = get_db_connection()
+    if not conn:
+        # Jika koneksi gagal, tampilkan halaman error atau pesan
+        return "Gagal terhubung ke database.", 500
+        
+    cursor = conn.cursor(dictionary=True)
+    
+    # Query untuk mengambil semua data OLT yang relevan
+    sql = """
+        SELECT 
+            nama_olt, 
+            pon_olt, 
+            status_pon, 
+            online, 
+            offline 
+        FROM olt 
+        ORDER BY nama_olt, pon_olt;
+    """
+    cursor.execute(sql)
+    all_olt_data = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+
+    olts_data = defaultdict(list)
+    for row in all_olt_data:
+        olts_data[row['nama_olt']].append({
+            'pon_olt': row['pon_olt'],
+            'status_pon': row['status_pon'],
+            'online': row['online'],
+            'offline': row['offline']
+        })
+        
+    # Kirim data yang sudah terstruktur ke template
+    return render_template('monitoringsimple.html', olts_data=olts_data)
 
 @app.route('/')
 def index():
@@ -270,6 +316,8 @@ def index():
         selected_date=selected_date,
         isp_interfaces=isp_interfaces_to_monitor # Kirim tanggal yang dipilih ke template
     )
+
+
 def special_access_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -501,6 +549,17 @@ def user_delete(id):
     conn.close()
     return redirect(url_for('user_list'))
 
+
+
+@app.route('/api/reload_olt', methods=['POST'])
+@login_required
+@special_access_required
+def api_reload_olt():
+    try:
+        reloadsemuadataolt()
+        return jsonify({'status': 'success', 'message': 'Data OLT berhasil disinkronkan.'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Terjadi kesalahan: {e}'}), 500
 
 # =================================================================
 # === CRUD UNTUK CLIENT ===========================================

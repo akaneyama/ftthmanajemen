@@ -1,0 +1,122 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="mb-8">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Monitoring Status OLT</h1>
+                <p class="text-gray-500">Tampilan status OLT berdasarkan data terakhir di database.</p>
+            </div>
+            <div>
+
+                {% if session['logged_in'] %}
+                <button id="reload-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition duration-150 ease-in-out">
+                    <svg id="reload-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M20 4h-5v5M4 20h5v-5" />
+                    </svg>
+                    <span id="reload-text">Sinkronisasi Data</span>
+                </button>
+                 {%endif%}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        
+        {% for olt_name, pon_ports in olts_data.items() %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+            <div class="p-4 bg-white border-b border-gray-200 flex items-center space-x-3">
+                <div class="bg-green-100 text-green-600 p-3 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">{{ olt_name }}</h2>
+                </div>
+            </div>
+            
+            <div class="p-4 flex-grow">
+                <div class="flow-root">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Port PON</th>
+                                <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Online</th>
+                                <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Offline</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for port in pon_ports %}
+                            <tr>
+                                <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ port.pon_olt }}</td>
+                                <td class="px-3 py-3 whitespace-nowrap text-sm">
+                                    {% if port.status_pon and port.status_pon.lower() == 'tersedia' %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Tersedia
+                                        </span>
+                                    {% else %}
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Habis
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center font-mono">{{ port.online if port.online is not none else 'N/A' }}</td>
+                                <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-center font-mono">{{ port.offline if port.offline is not none else 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-1 md:col-span-2 xl:col-span-3 bg-white p-12 rounded-lg shadow-md text-center">
+            <p class="text-gray-500">Tidak ada data OLT untuk ditampilkan.</p>
+            <p class="text-sm text-gray-400 mt-2">Coba lakukan sinkronisasi data atau pastikan data OLT sudah ada di database.</p>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const reloadButton = document.getElementById('reload-button');
+        const reloadText = document.getElementById('reload-text');
+        const reloadIcon = document.getElementById('reload-icon');
+
+        reloadButton.addEventListener('click', async function() {
+            // Ubah tampilan tombol untuk feedback
+            reloadButton.disabled = true;
+            reloadText.textContent = 'Sinkronisasi...';
+            reloadIcon.classList.add('animate-spin'); // Animasi putar
+
+            try {
+                // Panggil API endpoint yang sudah kita buat di app.py
+                const response = await fetch("{{ url_for('api_reload_olt') }}", {
+                    method: 'POST',
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    location.reload(); // Muat ulang halaman untuk lihat data baru
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                alert('Gagal melakukan sinkronisasi: ' + error.message);
+                // Kembalikan tombol ke keadaan semula jika error
+                reloadButton.disabled = false;
+                reloadText.textContent = 'Sinkronisasi Data';
+                reloadIcon.classList.remove('animate-spin');
+            }
+        });
+    });
+    </script>
+{% endblock %}
