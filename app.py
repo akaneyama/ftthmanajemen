@@ -563,15 +563,15 @@ def api_reload_olt():
             cekdanupdatestatusepon(olts,0)
 
         for oltsgpon in oltgpon:
-            cekdanupdatestatusgpon(oltsgpon,0)
+            cekdanupdatestatusgpon(oltsgpon)
         return jsonify({'status': 'success', 'message': 'Data OLT berhasil disinkronkan.'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Terjadi kesalahan: {e}'}), 500
 
 
-@app.route('/api/reload_olt', methods=['POST'])
+@app.route('/api/reload_olt_offline', methods=['POST'])
 @login_required
-@special_access_required
+@superadmin_required
 def api_reload_olt_offline():
     try:
         oltepon = ['192.168.50.100', '192.168.55.100', '192.168.60.100', '192.168.65.100']
@@ -580,7 +580,7 @@ def api_reload_olt_offline():
             cekdanupdatestatusepon(olts,1)
 
         for oltsgpon in oltgpon:
-            cekdanupdatestatusgpon(oltsgpon,1)
+            cekdanupdatestatusgpon(oltsgpon)
         return jsonify({'status': 'success', 'message': 'Data OLT berhasil disinkronkan.'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Terjadi kesalahan: {e}'}), 500

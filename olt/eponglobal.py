@@ -207,61 +207,65 @@ def cekdanupdatestatusepon(alamat_ip,nomor):
                 
                 if online_onu is not None:
                     print(f"Status Awal: {status_text}")
-                    if nomor = 1: 
-                    if total_onu > online_onu:
-                        print(f"⚠️ Ditemukan {total_onu - online_onu} ONU offline. Mencoba menghapus...")
-                        
-
-                        session_key = None
-            
-                        match = re.search(r"SessionKey\.value = '([^']+)';", pon_page_response.text)
-                        if match:
-                            session_key = match.group(1)
-                            print(f"Ditemukan SessionKey: {session_key}")
-                        else:
-                            print("❌ Gagal menemukan SessionKey di halaman. Membatalkan aksi hapus.")
-                            continue 
-
-                        delete_url = f"{BASE_URL}/action/onuauthinfo.html"
-                        delete_payload = {
-                            'select': pon_value,
-                            'onutype': '0',
-                            'searchMac': '',
-                            'searchDescription': '',
-                            'onuid': '0/',
-                            'select2': '1/',
-                            'who': '9', 
-                            'SessionKey': session_key 
-                        }
-                        
-                        print(f"Mengirim permintaan POST untuk menghapus...")
-                        
-                        delete_response = session.post(delete_url, data=delete_payload, headers=headers)
-                        
-                        if delete_response.status_code == 200:
-                            print("✅ Permintaan hapus berhasil dikirim. Verifikasi hasil...")
-                            time.sleep(3)
+                    if nomor == 1:
+                        print("Delete Offline Onu")
+                        if total_onu > online_onu:
+                            print(f"⚠️ Ditemukan {total_onu - online_onu} ONU offline. Mencoba menghapus...")
                             
-                            pon_page_after_delete = session.get(onu_list_url, params=params)
-                            new_online, new_total, new_status = get_onu_count(pon_page_after_delete.text)
-                            
-                            print(f"Status Baru: {new_status}")
-                            if new_total == online_onu:
-                                statuspon = 'tersedia';
-                                if new_online >= 61:
-                                    statuspon = 'habis';
-                                print("🎉 SUKSES! Jumlah ONU total sekarang sama dengan jumlah online sebelumnya.")
-                                kirimdatakedb(alamat_ip,pon_text,new_online,new_total-new_online,statuspon)
+
+                            session_key = None
+                
+                            match = re.search(r"SessionKey\.value = '([^']+)';", pon_page_response.text)
+                            if match:
+                                session_key = match.group(1)
+                                print(f"Ditemukan SessionKey: {session_key}")
                             else:
-                                print("🤔 PERHATIAN: Jumlah ONU total berubah, tapi tidak sesuai harapan.")
-                        else:
-                            print(f"❌ Gagal mengirim permintaan hapus. Status Code: {delete_response.status_code}")
-                        
+                                print("❌ Gagal menemukan SessionKey di halaman. Membatalkan aksi hapus.")
+                                continue 
+
+                            delete_url = f"{BASE_URL}/action/onuauthinfo.html"
+                            delete_payload = {
+                                'select': pon_value,
+                                'onutype': '0',
+                                'searchMac': '',
+                                'searchDescription': '',
+                                'onuid': '0/',
+                                'select2': '1/',
+                                'who': '9', 
+                                'SessionKey': session_key 
+                            }
+                            
+                            print(f"Mengirim permintaan POST untuk menghapus...")
+                            
+                            delete_response = session.post(delete_url, data=delete_payload, headers=headers)
+                            
+                            if delete_response.status_code == 200:
+                                print("✅ Permintaan hapus berhasil dikirim. Verifikasi hasil...")
+                                time.sleep(3)
+                                
+                                pon_page_after_delete = session.get(onu_list_url, params=params)
+                                new_online, new_total, new_status = get_onu_count(pon_page_after_delete.text)
+                                
+                                print(f"Status Baru: {new_status}")
+                                if new_total == online_onu:
+                                    statuspon = 'tersedia';
+                                    if new_online >= 61:
+                                        statuspon = 'habis';
+                                    print("🎉 SUKSES! Jumlah ONU total sekarang sama dengan jumlah online sebelumnya.")
+                                    kirimdatakedb(alamat_ip,pon_text,new_online,new_total-new_online,statuspon)
+                                else:
+                                    print("🤔 PERHATIAN: Jumlah ONU total berubah, tapi tidak sesuai harapan.")
+                            else:
+                                print(f"❌ Gagal mengirim permintaan hapus. Status Code: {delete_response.status_code}")
+                            
                     else:
+                        if total_onu > online_onu:
+                            print(f"⚠️ Ditemukan {total_onu - online_onu} ONU offline. Tidak Menghapus karena sinkronisasi saja....")
+                        else:
+                            print("✅ Tidak ada ONU offline di PON ini.")
                         statuspon1 = 'tersedia';
                         if online_onu >= 61:
                             statuspon1 = 'habis';
-                        print("✅ Tidak ada ONU offline di PON ini.")
                         kirimdatakedb(alamat_ip,pon_text,online_onu,total_onu - online_onu,statuspon1)
                 else:
                     print(f"Tidak dapat membaca status ONU untuk PON ini.")

@@ -15,7 +15,7 @@ MYSQL_CONFIG = {
     'password': 'akaneyama123',           
     'database': 'jaringanftth' 
 }
-def kirimdatakedb(alamat_ip, pon, online, offline):
+def kirimdatakedb(alamat_ip, pon, online, offline,statuspon):
     """
     Fungsi untuk MEMPERBARUI (UPDATE) data ONU di database MySQL menggunakan WHERE.
     """
@@ -28,6 +28,7 @@ def kirimdatakedb(alamat_ip, pon, online, offline):
         sql_query = '''
             UPDATE olt 
             SET 
+                status_pon = %s,
                 online = %s, 
                 offline = %s,
                 terakhir_update = %s
@@ -37,7 +38,7 @@ def kirimdatakedb(alamat_ip, pon, online, offline):
         
         # Urutan data harus sesuai dengan urutan %s di query
         # Nilai untuk SET di depan, nilai untuk WHERE di belakang
-        data_to_update = (online, offline, timestamp, alamat_ip, pon)
+        data_to_update = (statuspon,online, offline, timestamp, alamat_ip, pon)
         
         cursor.execute(sql_query, data_to_update)
         conn.commit()
