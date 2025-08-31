@@ -17,7 +17,8 @@ import copy
 from datetime import datetime
 import time
 from collections import defaultdict
-from olt.ambildataolt import reloadsemuadataolt
+from olt.eponglobal import cekdanupdatestatusepon
+from olt.gponglobal import cekdanupdatestatusgpon
 
 app = Flask(__name__)
 app.secret_key = 'kunci_rahasia_untuk_flash_messages' # Diperlukan untuk flash message
@@ -556,7 +557,30 @@ def user_delete(id):
 @special_access_required
 def api_reload_olt():
     try:
-        reloadsemuadataolt()
+        oltepon = ['192.168.50.100', '192.168.55.100', '192.168.60.100', '192.168.65.100']
+        oltgpon = ['192.168.70.100']
+        for olts in oltepon:
+            cekdanupdatestatusepon(olts,0)
+
+        for oltsgpon in oltgpon:
+            cekdanupdatestatusgpon(oltsgpon,0)
+        return jsonify({'status': 'success', 'message': 'Data OLT berhasil disinkronkan.'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Terjadi kesalahan: {e}'}), 500
+
+
+@app.route('/api/reload_olt', methods=['POST'])
+@login_required
+@special_access_required
+def api_reload_olt_offline():
+    try:
+        oltepon = ['192.168.50.100', '192.168.55.100', '192.168.60.100', '192.168.65.100']
+        oltgpon = ['192.168.70.100']
+        for olts in oltepon:
+            cekdanupdatestatusepon(olts,1)
+
+        for oltsgpon in oltgpon:
+            cekdanupdatestatusgpon(oltsgpon,1)
         return jsonify({'status': 'success', 'message': 'Data OLT berhasil disinkronkan.'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Terjadi kesalahan: {e}'}), 500

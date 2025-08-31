@@ -8,7 +8,16 @@
                 <p class="text-gray-500">Tampilan status OLT berdasarkan data terakhir di database.</p>
             </div>
             <div>
-
+                {% if session['logged_in'] %}
+                {% if session.get('role') == 'superadmin' %}
+                <button id="reload-button1" class="bg-red-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition duration-150 ease-in-out">
+                    <svg id="reload-icon1" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M20 4h-5v5M4 20h5v-5" />
+                    </svg>
+                    <span id="reload-text">Delete Offline dan Sinkronisasi Data</span>
+                </button>
+                {%endif%}
+                 {%endif%}
                 {% if session['logged_in'] %}
                 <button id="reload-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center transition duration-150 ease-in-out">
                     <svg id="reload-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -17,6 +26,7 @@
                     <span id="reload-text">Sinkronisasi Data</span>
                 </button>
                  {%endif%}
+                
             </div>
         </div>
     </div>
@@ -115,6 +125,42 @@
                 reloadButton.disabled = false;
                 reloadText.textContent = 'Sinkronisasi Data';
                 reloadIcon.classList.remove('animate-spin');
+            }
+        });
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const reloadButton1 = document.getElementById('reload-button1');
+        const reloadText1 = document.getElementById('reload-text1');
+        const reloadIcon1 = document.getElementById('reload-icon1');
+
+        reloadButton1.addEventListener('click', async function() {
+            // Ubah tampilan tombol untuk feedback
+            reloadButton1.disabled = true;
+            reloadText1.textContent = 'Sinkronisasi...';
+            reloadIcon1.classList.add('animate-spin'); // Animasi putar
+
+            try {
+                // Panggil API endpoint yang sudah kita buat di app.py
+                const response = await fetch("{{ url_for('api_reload_olt_offline') }}", {
+                    method: 'POST',
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    location.reload(); // Muat ulang halaman untuk lihat data baru
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                alert('Gagal melakukan sinkronisasi: ' + error.message);
+                // Kembalikan tombol ke keadaan semula jika error
+                reloadButton1.disabled = false;
+                reloadText1.textContent = 'Sinkronisasi Data';
+                reloadIcon1.classList.remove('animate-spin');
             }
         });
     });
